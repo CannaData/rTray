@@ -2,5 +2,8 @@
 
 export(qz_libs)
 export(rtray_lib)
+export(server_api)
+import(openssl)
+import(shiny)
 importFrom(htmltools,htmlDependency)
 importFrom(shiny,includeScript)
