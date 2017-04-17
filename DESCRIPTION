@@ -15,4 +15,5 @@ RoxygenNote: 6.0.1
 Imports: htmltools, openssl, shiny
 URL: https://github.com/CannaData/rTray
 BugReports: https://github.com/CannaData/rTray/issues
-Suggests: covr
+Suggests: covr,
+    testthat
