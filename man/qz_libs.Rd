@@ -12,6 +12,9 @@ qz_libs()
 
 rtray_lib()
 }
+\arguments{
+\item{session}{The \code{session} object passed to function given to shinyServer.}
+}
 \description{
 Include qz JavaScript libraries
 }

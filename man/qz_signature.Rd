@@ -9,6 +9,10 @@ qz_signature(toSign, myKey = Sys.getenv("qz_key"),
 }
 \arguments{
 \item{toSign}{message to sign}
+
+\item{myKey}{path to PEM key file}
+
+\item{password}{password for PEM key file}
 }
 \description{
 Sign messages from QZ Tray PEM file

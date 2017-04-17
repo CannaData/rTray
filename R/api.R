@@ -12,6 +12,7 @@ api.signature <- function(params) {
 
 #' @export
 #' @import shiny
+#' @param session The \code{session} object passed to function given to shinyServer.
 #' @rdname qz_libs
 server_api <- function(session) {
   # Dean Attali, July 2015

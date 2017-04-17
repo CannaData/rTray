@@ -2,6 +2,8 @@
 #'
 #' @import openssl
 #' @param toSign message to sign
+#' @param myKey path to PEM key file
+#' @param password password for PEM key file
 #'
 
 qz_signature <-
