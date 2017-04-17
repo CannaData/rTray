@@ -77,48 +77,54 @@ api = function() {
     };
 }();
 
-qz_connect = function(parameters) {
-    /// Authentication setup ///
-    qz.security.setCertificatePromise(function(resolve, reject) {
-        // set intermediate certificate from server with sendCustomMessage
-        resolve(parameters.certificate);
-    });
 
-    qz.security.setSignaturePromise(function(toSign) {
-        return function(resolve, reject) {
-            // use Dean Attali API
-            var params = {};
-            params["_method"] = "signature";
-            params["toSign"] = toSign;
-            params["_callback"] = function(response) {
-                resolve(response.signature);
+rTray = function() {
+  return {
+    qz_connect : function(parameters) {
+        /// Authentication setup ///
+        qz.security.setCertificatePromise(function(resolve, reject) {
+            // set intermediate certificate from server with sendCustomMessage
+            resolve(parameters.certificate);
+        });
+
+        qz.security.setSignaturePromise(function(toSign) {
+            return function(resolve, reject) {
+                // use Dean Attali API
+                var params = {};
+                params["_method"] = "signature";
+                params["toSign"] = toSign;
+                params["_callback"] = function(response) {
+                    resolve(response.signature);
+                };
+                api.call(params);
             };
-            api.call(params);
-        };
-    });
-    qz.websocket.connect().then(function() {
-        if (parameters.bool) {
-            console.log("Connected!");
-        }
-    });
-};
+        });
+        qz.websocket.connect().then(function() {
+            if (parameters.bool) {
+                console.log("Connected!");
+            }
+        });
+    },
 
-qz_init = function(params) {
-    window.location.assign("qz:launch");
-};
+    qz_init : function(params) {
+        window.location.assign("qz:launch");
+    },
 
-list_printers = function(params) {
-    qz.printers.find().then(function(data) {
-        Shiny.onInputChange("list_printers", data);
-    }).catch(function(e) {
-        console.error(e);
-    });
-}
+    list_printers : function(params) {
+        qz.printers.find().then(function(data) {
+            Shiny.onInputChange("list_printers", data);
+        }).catch(function(e) {
+            console.error(e);
+        });
+    }
+  };
+}();
+
 
 $(function() {
     Shiny.addCustomMessageHandler('api.callback', api.callback);
     Shiny.addCustomMessageHandler('api.failureCallback', api.failureCallback);
-    Shiny.addCustomMessageHandler('qz_connect', qz_connect);
-    Shiny.addCustomMessageHandler('qz_init', qz_init);
-    Shiny.addCustomMessageHandler('list_printers', list_printers);
+    Shiny.addCustomMessageHandler('qz_connect', rTray.qz_connect);
+    Shiny.addCustomMessageHandler('qz_init', rTray.qz_init);
+    Shiny.addCustomMessageHandler('list_printers', rTray.list_printers);
 });
