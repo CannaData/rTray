@@ -3,3 +3,18 @@
 language: R
 sudo: false
 cache: packages
+
+r_packages:
+  - covr
+
+matrix:
+  include:
+    - os: linux
+      r: release
+      compiler: gcc
+    - os: osx
+      r: release
+      compiler: clang
+
+after_success:
+  - Rscript -e 'covr::codecov()'
