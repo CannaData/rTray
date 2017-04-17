@@ -110,7 +110,7 @@ qz_init = function(params) {
 
 list_printers = function(params) {
     qz.printers.find().then(function(data) {
-        Shiny.onInputChange("list_printers", JSON.stringify(data));
+        Shiny.onInputChange("list_printers", data);
     }).catch(function(e) {
         console.error(e);
     });
