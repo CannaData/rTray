@@ -14,39 +14,112 @@ You should have received a copy of the GNU Lesser General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-Shiny.addCustomMessageHandler('qz_connect', function(bool) {
+// Dean Attali, July 2015
+
+api = function() {
+
+    // create a unique id
+    function guid() {
+        function s4() {
+            return Math.floor((1 + Math.random()) * 0x10000)
+                .toString(16)
+                .substring(1);
+        }
+        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+            s4() + '-' + s4() + s4() + s4();
+    }
+
+    // keep track of all the calls currently in progress
+    calls = {};
+
+    return {
+
+        // this is the main function to use: call "api.call(params)" to make
+        // an AJAX call
+        call: function(params) {
+            var reqid = guid();
+            calls[reqid] = params;
+            params['_reqid'] = reqid;
+            Shiny.onInputChange('api', params);
+        },
+
+        // callback from R when a call is done
+        callback: function(response) {
+            // grab the request id and get the original parameters of this call
+            var reqid = response._reqid;
+            delete response['_reqid'];
+            var call = calls[reqid];
+
+            // remove this call from the list of calls in progress
+            delete calls[reqid];
+
+            // if the user specified a callback, call it
+            var callback = call._callback;
+            if (callback) {
+                callback(response);
+            }
+        },
+
+        // callback from R when an error occurs during an api call
+        failureCallback: function(response) {
+            console.log("API error!");
+            console.log(response);
+
+            var reqid = response._reqid;
+            delete response['_reqid'];
+            var call = calls[reqid];
+            delete calls[reqid];
+            var callback = call._failureCallback;
+            if (callback) {
+                callback(response);
+            }
+        }
+    };
+}();
+
+qz_connect = function(parameters) {
     /// Authentication setup ///
     qz.security.setCertificatePromise(function(resolve, reject) {
-        //Preferred method - from server
-        //        $.ajax("assets/signing/digital-certificate.txt").then(resolve, reject);
-        //Alternate method 1 - anonymous
+        // set intermediate certificate from server with sendCustomMessage
         resolve();
     });
 
     qz.security.setSignaturePromise(function(toSign) {
         return function(resolve, reject) {
-            //Preferred method - from server
-            //            $.ajax("/secure/url/for/sign-message?request=" + toSign).then(resolve, reject);
-            //Alternate method - unsigned
-            resolve();
+            // use Dean Attali API
+            var params = {};
+            params["_method"] = "signature";
+            params["_toSign"] = toSign;
+            params["_callback"] = function(response) {
+                //resolve(response.signature);
+                resolve();
+            };
+            api.call(params);
         };
     });
     qz.websocket.connect().then(function() {
-        if (bool) {
+        if (parameters.bool) {
             console.log("Connected!");
         }
     });
-});
+};
 
-Shiny.addCustomMessageHandler('list_printers', function(NULL) {
-  alert("test1")
+qz_init = function(params) {
+    window.location.assign("qz:launch");
+};
+
+list_printers = function(params) {
     qz.printers.find().then(function(data) {
         Shiny.onInputChange("list_printers", JSON.stringify(data));
     }).catch(function(e) {
         console.error(e);
     });
-});
+}
 
-Shiny.addCustomMessageHandler('qz_init', function(NULL) {
-    window.location.assign("qz:launch");
+$(function() {
+    Shiny.addCustomMessageHandler('api.callback', api.callback);
+    Shiny.addCustomMessageHandler('api.failureCallback', api.failureCallback);
+    Shiny.addCustomMessageHandler('qz_connect', qz_connect);
+    Shiny.addCustomMessageHandler('qz_init', qz_init);
+    Shiny.addCustomMessageHandler('list_printers', list_printers);
 });
