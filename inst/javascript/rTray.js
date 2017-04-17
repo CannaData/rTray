@@ -81,7 +81,7 @@ qz_connect = function(parameters) {
     /// Authentication setup ///
     qz.security.setCertificatePromise(function(resolve, reject) {
         // set intermediate certificate from server with sendCustomMessage
-        resolve();
+        resolve(parameters.certificate);
     });
 
     qz.security.setSignaturePromise(function(toSign) {
@@ -89,10 +89,9 @@ qz_connect = function(parameters) {
             // use Dean Attali API
             var params = {};
             params["_method"] = "signature";
-            params["_toSign"] = toSign;
+            params["toSign"] = toSign;
             params["_callback"] = function(response) {
-                //resolve(response.signature);
-                resolve();
+                resolve(response.signature);
             };
             api.call(params);
         };
