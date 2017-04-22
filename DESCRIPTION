@@ -7,12 +7,12 @@ Authors@R: c(
   )
 Description: 'QZ Tray' <https://qz.io/> is the leading open-source solution for printing from the browser.
   This packages provides support for integrating 'QZ Tray' with 'Shiny' applications.
-Depends: R (>= 3.2.2)
+Depends: R (>= 3.2.2), shiny
 License: LGPL-3
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1
-Imports: htmltools, openssl, shiny
+Imports: htmltools, openssl, jsonlite
 URL: https://github.com/CannaData/rTray
 BugReports: https://github.com/CannaData/rTray/issues
 Suggests: covr,
