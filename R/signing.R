@@ -6,11 +6,11 @@
 #' @param password password for PEM key file
 #'
 
-qz_signature <-
+signature <-
   function(toSign,
            myKey = Sys.getenv("qz_key"),
            password = Sys.getenv("qz_password")) {
-    message <- serialize(enc2utf8(toSign), NULL)
+    message <- serialize(toSign, NULL)
     
     key <- openssl::read_key(file = myKey, password = password)
     

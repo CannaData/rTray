@@ -1,52 +1,34 @@
-api.certificate <- function(params) {
-  list(certificate = Sys.getenv("qz_certificate"),
-       success = TRUE)
+qz_certificate <- function(session, certificate = Sys.getenv("qz_certificate")) {
+  
+  url <- session$registerDataObj("qz_certificate", certificate, function(data, req) {
+    
+    shiny:::httpResponse(content = toJSON(certificate), content_type="text/json")
+  })
+  
+  session$sendCustomMessage("qz_certificate", list(url = url))
+  
 }
 
-api.signature <- function(params) {
-  toSign <- params$toSign
-  return(list(signature = qz_signature(toSign),
-              success = TRUE))
+qz_signature <- function(session, myKey = Sys.getenv("qz_key"),
+                         password = Sys.getenv("qz_password")) {
+  
+  url <- session$registerDataObj("qz_signature", NULL, function(data, req) {
+    query <- parseQueryString(req$QUERY_STRING)
+    signed <- signature(query$toSign, myKey, password)
+    shiny:::httpResponse(content = toJSON(signed), content_type = "text/json")
+    
+  })
+  
+  session$sendCustomMessage("qz_signature", list(url = url))
   
 }
 
 #' @export
-#' @import shiny
+#' @import shiny jsonlite
 #' @param session The \code{session} object passed to function given to shinyServer.
 #' @rdname qz_libs
+#' 
 server_api <- function(session) {
-  # Dean Attali, July 2015
-  
-  # listen for when javascript makes an api call
-  shiny::observeEvent(session$input[['api']], {
-    # grab all the call parameters
-    params <- session$input[['api']]
-    # determine what R method to call
-    method <- params[['_method']]
-    method <- sprintf("api.%s", method)
-    
-    # save the request ID
-    reqid  <- params[['_reqid']]
-    
-    # remove the meta params from the param list
-    params[['_method']] <- NULL
-    params[['_reqid']]  <- NULL
-    
-    # attempt to run the R function and return the response, along with request ID
-    tryCatch({
-      response <- do.call(method, as.list(list(params)))
-      response <- as.list(response)
-      response['_reqid'] <- reqid
-      
-      session$sendCustomMessage(type = "api.callback", response)
-      
-    },
-    # if an error occurs, call the error callback
-    error = function(err) {
-      response <- list(message = err$message,
-                       `_reqid`  = reqid)
-      session$sendCustomMessage(type = "api.failureCallback", response)
-      
-    })
-  })
+  qz_certificate(session)
+  qz_signature(session)
 }
