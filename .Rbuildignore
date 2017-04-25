@@ -1,6 +1,11 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^LICENSE$
 ^\.travis\.yml$
-LICENSE$
 ^codecov\.yml$
+^README\.Rmd$
+^README-.*\.png$
+^CONDUCT\.md$
+^CONTRIBUTING\.md$
 ^appveyor\.yml$
+^cran-comments\.md$
