@@ -32,7 +32,6 @@ rTray = function() {
             console.log("signature");
             qz.security.setSignaturePromise(function(toSign) {
                 return function(resolve, reject) {
-                    console.log($.ajax(parameters.url + "?request=" + toSign));
                     $.ajax({
                         url: parameters.url,
                         data: {
@@ -52,12 +51,12 @@ rTray = function() {
             });
         },
 
-        qz_init: function(params) {
+        qz_init: function(parameters) {
             console.log("init");
             window.location.assign("qz:launch");
         },
 
-        list_printers: function(params) {
+        list_printers: function(parameters) {
             console.log("printers");
             qz.printers.find().then(function(data) {
                 Shiny.onInputChange("list_printers", data);
@@ -66,7 +65,7 @@ rTray = function() {
             });
         },
 
-        list_hid: function(params) {
+        list_hid: function(parameters) {
             console.log("hid");
             qz.hid.listDevices().then(function(data) {
                 Shiny.onInputChange("list_hid", data);
@@ -75,11 +74,29 @@ rTray = function() {
             });
         },
 
-        read_barcodes: function() {
+        hid_read: function(parameters) {
+            console.log("claim");
+            qz.hid.claimDevice(parameters.vendor, parameters.product).then(function() {
+                console.log("callback");
+                qz.hid.setHidCallbacks(function(streamEvent) {
 
+                    if (streamEvent.type === 'RECEIVE') {
+                        console.log('Receive');
+                        Shiny.onInputChange('hid_input', streamEvent.output);
+
+                    } else if (streamEvent.type === 'ACTION') {
+                        streamEvent.actionType;
+                    } else { //ERROR type
+                        console.log(streamEvent.exception);
+                    }
+                });
+            }).then(function() {
+                console.log("stream");
+                qz.hid.openStream(parameters.vendor, parameters.product, '8');
+            });
         }
+    }
 
-    };
 }();
 
 // Register functions with Shiny
@@ -90,4 +107,5 @@ $(function() {
     Shiny.addCustomMessageHandler('qz_init', rTray.qz_init);
     Shiny.addCustomMessageHandler('list_printers', rTray.list_printers);
     Shiny.addCustomMessageHandler('list_hid', rTray.list_hid);
+    Shiny.addCustomMessageHandler('hid_read', rTray.hid_read);
 });
