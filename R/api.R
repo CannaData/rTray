@@ -2,7 +2,7 @@ qz_certificate <- function(session, certificate = Sys.getenv("qz_certificate")) 
   
   url <- session$registerDataObj("qz_certificate", certificate, function(data, req) {
     
-    shiny:::httpResponse(content = toJSON(certificate), content_type="text/json")
+    shiny:::httpResponse(content = jsonlite::toJSON(certificate), content_type="text/json")
   })
   
   session$sendCustomMessage("qz_certificate", list(url = url))
@@ -15,7 +15,7 @@ qz_signature <- function(session, myKey = Sys.getenv("qz_key"),
   url <- session$registerDataObj("qz_signature", NULL, function(data, req) {
     query <- parseQueryString(req$QUERY_STRING)
     signed <- signature(query$toSign, myKey, password)
-    shiny:::httpResponse(content = toJSON(signed), content_type = "text/json")
+    shiny:::httpResponse(content = jsonlite::toJSON(signed), content_type = "text/json")
     
   })
   
@@ -24,7 +24,8 @@ qz_signature <- function(session, myKey = Sys.getenv("qz_key"),
 }
 
 #' @export
-#' @import shiny jsonlite
+#' @import shiny
+#' @importFrom jsonlite toJSON
 #' @param session The \code{session} object passed to function given to shinyServer.
 #' @rdname qz_libs
 #' 
