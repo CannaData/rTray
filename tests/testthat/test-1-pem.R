@@ -64,7 +64,7 @@ Sys.setenv("qz_certificate"=paste0("-----BEGIN CERTIFICATE-----\n",
                                    "-----END CERTIFICATE-----\n"))
 
 test_that("Can sign messages", {
-  expect_silent(msg <- rTray:::qz_signature("Hello World"))
+  expect_silent(msg <- rTray:::signature("Hello World"))
   expect_true(length(msg) == 256)
 })
 
