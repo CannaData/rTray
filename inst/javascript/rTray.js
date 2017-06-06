@@ -45,9 +45,7 @@ rTray = function() {
         qz_connect: function(parameters) {
             console.log("connect");
             qz.websocket.connect().then(function() {
-                if (parameters.bool) {
-                    console.log("Connected!");
-                }
+                console.log("Connected!");
             });
         },
 
