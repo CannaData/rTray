@@ -16,6 +16,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 // rTray namespace
 rTray = function() {
+  
     return {
         qz_certificate: function(parameters) {
             /// Authentication setup ///
@@ -61,37 +62,6 @@ rTray = function() {
             }).catch(function(e) {
                 console.error(e);
             });
-        },
-
-        list_hid: function(parameters) {
-            console.log("hid");
-            qz.hid.listDevices().then(function(data) {
-                Shiny.onInputChange("list_hid", data);
-            }).catch(function(e) {
-                console.error(e);
-            });
-        },
-
-        hid_read: function(parameters) {
-            console.log("claim");
-            qz.hid.claimDevice(parameters.vendor, parameters.product).then(function() {
-                console.log("callback");
-                qz.hid.setHidCallbacks(function(streamEvent) {
-
-                    if (streamEvent.type === 'RECEIVE') {
-                        console.log('Receive');
-                        Shiny.onInputChange('hid_input', streamEvent.output);
-
-                    } else if (streamEvent.type === 'ACTION') {
-                        streamEvent.actionType;
-                    } else { //ERROR type
-                        console.log(streamEvent.exception);
-                    }
-                });
-            }).then(function() {
-                console.log("stream");
-                qz.hid.openStream(parameters.vendor, parameters.product, '8');
-            });
         }
     }
 
@@ -104,6 +74,4 @@ $(function() {
     Shiny.addCustomMessageHandler('qz_connect', rTray.qz_connect);
     Shiny.addCustomMessageHandler('qz_init', rTray.qz_init);
     Shiny.addCustomMessageHandler('list_printers', rTray.list_printers);
-    Shiny.addCustomMessageHandler('list_hid', rTray.list_hid);
-    Shiny.addCustomMessageHandler('hid_read', rTray.hid_read);
 });
